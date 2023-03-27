@@ -12,6 +12,11 @@ var tailX = [], tailY = [];
 
 var isGameOver;
 
+// sounds
+var eatSound = new Audio("Sounds/eat_sound.wav");
+var music = new Audio("Sounds/music.mp3");
+var gameOverSound = new Audio("Sounds/game_over.wav");
+
 function start() {
     var canvas = document.getElementById("canvas");
 
@@ -47,7 +52,8 @@ function initializeValues() {
 function game() {
     var ctx = canvas.getContext("2d");
 
-    update();
+    if (!isGameOver)
+        update();
     draw(ctx);
 }
 
@@ -76,14 +82,6 @@ function update() {
         case 'D':
             playerX += speed * tileSize;
         break;
-
-        // restart
-        case ' ':
-            if (isGameOver) {
-                initializeValues();
-                isGameOver = false;
-            }
-        break;
     }
 
     // collision with food
@@ -92,6 +90,8 @@ function update() {
         score++;
         generateFood();
         displayScore();
+
+        eatSound.play();
     }
 
     // loop around
@@ -102,8 +102,16 @@ function update() {
 
     // death
     for (let i = 0; i < tailSize; i++) {
-        if (playerX == tailX[i] && playerY == tailY[i])
-            isGameOver = true;
+        if (playerX == tailX[i] && playerY == tailY[i]) {
+            isGameOver = true; 
+            speed = 0;  
+            
+            // stop music
+            music.pause();
+            music.currentTime = 0;
+
+            gameOverSound.play();
+        }
     }
 }
 
@@ -173,8 +181,15 @@ function keyPressed(event) {
             if (key != 'W') key = 'S';
         break;
 
+        // restart
         case 32:
-            key = ' ';
+            if (isGameOver) {
+                initializeValues();
+                isGameOver = false;
+            }
         break;
     }
+
+    if (!isGameOver)
+        music.play();
 }

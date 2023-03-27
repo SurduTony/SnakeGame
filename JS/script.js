@@ -1,7 +1,7 @@
 var playerX, playerY;
 var foodX, foodY;
 
-var score;
+var score, highScore = 0;
 var speed;
 
 var tileSize = 20;
@@ -111,6 +111,11 @@ function update() {
             music.currentTime = 0;
 
             gameOverSound.play();
+
+            // highscore
+            if (score > highScore) {
+                highScore = score;
+            }
         }
     }
 }
@@ -160,6 +165,9 @@ function generateFood() {
 function displayScore() {
     let scoreLabel = document.getElementById("score");
     scoreLabel.innerHTML = score;
+
+    let highScoreLabel = document.getElementById("highScore");
+    highScoreLabel.innerHTML = highScore;
 }
 
 function keyPressed(event) {

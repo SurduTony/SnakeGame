@@ -19,6 +19,15 @@ var eatSound = new Audio("Sounds/eat_sound.wav");
 var music = new Audio("Sounds/music.mp3");
 var gameOverSound = new Audio("Sounds/game_over.wav");
 
+var Dir = {
+    UP: 0,
+    DOWN: 1,
+    LEFT: 2,
+    RIGHT: 3,
+    STAND: 4
+};
+var dir;
+
 function start() {
     var canvas = document.getElementById("canvas");
 
@@ -61,6 +70,7 @@ function initializeValues() {
     enemy.tailX = [];
     enemy.tailY = [];
 
+    dir = Dir.STAND;
     key = '';
 
     displayScore();
@@ -78,12 +88,21 @@ function update() {
         menuManager.update();
     }
     else {
+        // game update
+
         player.update();
 
         if (drawEnemy) {
             enemy.update(player.x, player.y);
         }
         drawEnemy = !drawEnemy;
+
+        // pause game
+        if (key == 'p') {
+            menuManager.currMenu = MenuState.PauseMenu;
+            inMenu = true;
+            key = '';
+        }
     }
 }
 
@@ -122,24 +141,29 @@ function displayScore() {
 
 function keyPressed(event) {
     switch (event.keyCode) {
-        case 97:
-            if (key != 'D') key = 'A';
+        case 97: // A
+            if (dir != Dir.RIGHT) dir = Dir.LEFT;
         break;
     
-        case 100:
-            if (key != 'A') key = 'D';
+        case 100: // D
+            if (dir != Dir.LEFT) dir = Dir.RIGHT;
         break;
     
-        case 119:
-            if (key != 'S') key = 'W';
+        case 119: // W
+            if (dir != Dir.DOWN) dir = Dir.UP;
         break;
     
-        case 115:
-            if (key != 'W') key = 'S';
+        case 115: // S
+            if (dir != Dir.UP) dir = Dir.DOWN;
         break;
 
-        case 32:
-            key = ' ';
+        case 13: // Enter
+            key = 'Enter';
+            console.log(key);
+        break;
+
+        case 112:
+            key = 'p'
         break;
     }
 
@@ -169,20 +193,20 @@ class Snake {
         this.tailX[0] = this.x;
         this.tailY[0] = this.y;
 
-        switch (key) {
-            case 'W':
+        switch (dir) {
+            case Dir.UP:
                 this.y -= this.speed * tileSize;
             break;
             
-            case 'S':
+            case Dir.DOWN:
                 this.y += this.speed * tileSize;
             break;
 
-            case 'A':
+            case Dir.LEFT:
                 this.x -= this.speed * tileSize;
             break;
 
-            case 'D':
+            case Dir.RIGHT:
                 this.x += this.speed * tileSize;
             break;
         }
@@ -285,7 +309,8 @@ class Enemy extends Snake {
 // Menu Manager =====================================================
 const MenuState = {
     MainMenu: 0,
-    DeathMenu: 1
+    DeathMenu: 1,
+    PauseMenu: 2
 }
 
 class MenuManager {
@@ -302,6 +327,10 @@ class MenuManager {
             case MenuState.DeathMenu:
                 this.#updateDeathMenu();
             break;
+
+            case MenuState.PauseMenu:
+                this.#updatePauseMenu();
+            break;
         }
 
         key = '';
@@ -316,21 +345,31 @@ class MenuManager {
             case MenuState.DeathMenu:
                 this.#drawDeathMenu(ctx);
             break;
+
+            case MenuState.PauseMenu:
+                this.#drawPauseMenu(ctx);
+            break;
         }
     }
 
     #updateMainMenu() {
         // start the game
-        if (key == ' ') {
+        if (key == 'Enter') {
             inMenu = false;
         }
     }
 
     #updateDeathMenu() {
         // restart game
-        if (key == ' ') {
+        if (key == 'Enter') {
             initializeValues();
             isGameOver = false;
+            inMenu = false;
+        }
+    }
+
+    #updatePauseMenu() {
+        if (key == 'p') {
             inMenu = false;
         }
     }
@@ -344,7 +383,7 @@ class MenuManager {
         ctx.fillText("Snake", canvas.width/3+50, canvas.height/2-50);
 
         ctx.font = "24px serif";
-        ctx.fillText("Press space to start", canvas.width/3+20, canvas.height-100);
+        ctx.fillText("Press Enter to start", canvas.width/3+20, canvas.height-100);
     }
 
     #drawDeathMenu(ctx) {
@@ -356,6 +395,12 @@ class MenuManager {
         ctx.fillText("Game Over!", canvas.width/3, canvas.height/2-50);
     
         ctx.font = "24px serif";
-        ctx.fillText("Press space to restart", canvas.width/3, canvas.height-100);
+        ctx.fillText("Press Enter to restart", canvas.width/3, canvas.height-100);
+    }
+
+    #drawPauseMenu(ctx) {
+        ctx.fillStyle = "black";
+        ctx.font = "48px serif";
+        ctx.fillText("PAUSE", canvas.width/3+50, canvas.height/2);
     }
 }

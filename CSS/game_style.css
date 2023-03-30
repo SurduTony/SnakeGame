@@ -15,7 +15,7 @@ h1 {
 
 p {
     font-size: 35px;
-    padding-left: 150px;
+    padding-left: 120px;
 
     position: relative;
     bottom: 500px;
@@ -23,4 +23,13 @@ p {
 
 body {
     background-image: url("../Images/background.png");
+}
+
+.pause {
+    font-size: 25px;
+    padding-left: 50px;
+    padding-top: 200px;
+
+    position: relative;
+    bottom: 500px;
 }
